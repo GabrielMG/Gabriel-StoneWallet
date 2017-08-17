@@ -101,9 +101,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StoneWallet\StoneWallet.csproj">
+    <ProjectReference Include="..\StoneWallet\StoneWalletService.csproj">
       <Project>{76DA45F7-1BA1-4A19-AC63-C59F8C8387A1}</Project>
-      <Name>StoneWallet</Name>
+      <Name>StoneWalletService</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
