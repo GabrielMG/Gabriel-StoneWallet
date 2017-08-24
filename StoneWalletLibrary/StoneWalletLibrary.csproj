@@ -47,12 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusinessLogic\WalletBusiness.cs" />
     <Compile Include="Data\CardRepository.cs" />
     <Compile Include="Data\StoneWalletContext.cs" />
-    <Compile Include="Data\CardHolderRepository.cs" />
+    <Compile Include="Data\CardholderRepository.cs" />
     <Compile Include="Data\WalletRepository.cs" />
     <Compile Include="Models\Card.cs" />
-    <Compile Include="Models\CardHolder.cs" />
+    <Compile Include="Models\Cardholder.cs" />
     <Compile Include="Models\Wallet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -60,5 +61,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

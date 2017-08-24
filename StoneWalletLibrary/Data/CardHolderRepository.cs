@@ -8,46 +8,46 @@ using System.Data.Entity;
 
 namespace StoneWalletLibrary.Data
 {
-    class CardHolderRepository
+    class CardholderRepository
     {
         private readonly StoneWalletContext _context;
 
-        public CardHolderRepository(StoneWalletContext context)
+        public CardholderRepository(StoneWalletContext context)
         {
             _context = context;
         }
 
-        public CardHolder Add(CardHolder CardHolder)
+        public Cardholder Add(Cardholder cardholder)
         {
-            var entry = _context.CardHolders.Add(CardHolder);
+            var entry = _context.Cardholders.Add(cardholder);
             _context.SaveChanges();
             return entry;
         }
 
-        public CardHolder FindById(int CardHolderId)
+        public Cardholder FindById(int cardholderId)
         {
-            return _context.CardHolders.Include(ch => ch.Wallet).Include(ch => ch.Cards).Where(ch => ch.CardHolderId.Equals(CardHolderId)).FirstOrDefault();
+            return _context.Cardholders.Include(ch => ch.Wallet).Include(ch => ch.Cards).Where(ch => ch.CardholderId.Equals(cardholderId) && ch.Deleted == false).FirstOrDefault();
         }
 
-        public List<CardHolder> Find(Func<CardHolder, bool> filter)
+        public List<Cardholder> Find(Func<Cardholder, bool> filter)
         {
-            return _context.CardHolders.Include(ch => ch.Wallet).Include(ch => ch.Cards).Where(filter).ToList();
+            return _context.Cardholders.Include(ch => ch.Wallet).Include(ch => ch.Cards).Where(filter).ToList();
         }
 
-        public CardHolder Edit(CardHolder CardHolder)
+        public Cardholder Edit(Cardholder cardholder)
         {
-            _context.CardHolders.Attach(CardHolder);
-            var entry = _context.Entry(CardHolder);
+            _context.Cardholders.Attach(cardholder);
+            var entry = _context.Entry(cardholder);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
             return entry.Entity;
         }
 
-        public void Delete(CardHolder CardHolder)
+        public void Delete(Cardholder cardholder)
         {
-            CardHolder.Deleted = true;
-            _context.CardHolders.Attach(CardHolder);
-            var entry = _context.Entry(CardHolder);
+            cardholder.Deleted = true;
+            _context.Cardholders.Attach(cardholder);
+            var entry = _context.Entry(cardholder);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
         }

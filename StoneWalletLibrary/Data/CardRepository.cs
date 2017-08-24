@@ -17,47 +17,47 @@ namespace StoneWalletLibrary.Data
             _context = context;
         }
 
-        public Card Add(Card Card)
+        public Card Add(Card card)
         {
-            var entry = _context.Cards.Add(Card);
+            var entry = _context.Cards.Add(card);
             _context.SaveChanges();
             return entry;
         }
 
-        public Card FindById(int CardId)
+        public Card FindById(int cardId)
         {
-            return _context.Cards.Include(c => c.CardHolder).Include(c => c.Wallet).Where(c => c.CardId.Equals(CardId)).FirstOrDefault();
+            return _context.Cards.Include(c => c.Cardholder).Include(c => c.Wallet).Where(c => c.CardId.Equals(cardId)).FirstOrDefault();
         }
 
         public List<Card> Find(Func<Card, bool> filter)
         {
-            return _context.Cards.Include(c => c.CardHolder).Include(c => c.Wallet).Where(filter).ToList();
+            return _context.Cards.Include(c => c.Cardholder).Include(c => c.Wallet).Where(filter).ToList();
         }
 
-        public List<Card> FindByCardHolder(int CardHolderId)
+        public List<Card> FindByCardholder(int cardholderId)
         {
-            return _context.Cards.Include(c => c.CardHolder).Include(c => c.Wallet).Where(c => c.CardHolder.CardHolderId == CardHolderId).ToList();
+            return _context.Cards.Include(c => c.Cardholder).Include(c => c.Wallet).Where(c => c.Cardholder.CardholderId == cardholderId && c.Deleted == false).ToList();
         }
 
-        public List<Card> FindByWallet(int WalletId)
+        public List<Card> FindByWallet(int walletId)
         {
-            return _context.Cards.Include(c => c.CardHolder).Include(c => c.Wallet).Where(c => c.Wallet.WalletId == WalletId).ToList();
+            return _context.Cards.Include(c => c.Cardholder).Include(c => c.Wallet).Where(c => c.Wallet.WalletId == walletId && c.Deleted == false).ToList();
         }
 
-        public Card Edit(Card Card)
+        public Card Edit(Card card)
         {
-            _context.Cards.Attach(Card);
-            var entry = _context.Entry(Card);
+            _context.Cards.Attach(card);
+            var entry = _context.Entry(card);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
             return entry.Entity;
         }
 
-        public void Delete(Card Card)
+        public void Delete(Card card)
         {
-            Card.Deleted = true;
-            _context.Cards.Attach(Card);
-            var entry = _context.Entry(Card);
+            card.Deleted = true;
+            _context.Cards.Attach(card);
+            var entry = _context.Entry(card);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
         }

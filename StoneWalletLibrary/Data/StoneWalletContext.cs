@@ -13,6 +13,6 @@ namespace StoneWalletLibrary.Data
     {
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Card> Cards { get; set; }
-        public DbSet<CardHolder> CardHolders { get; set; }
+        public DbSet<Cardholder> Cardholders { get; set; }
     }
 }

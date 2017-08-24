@@ -17,42 +17,42 @@ namespace StoneWalletLibrary.Data
             _context = context;
         }
 
-        public Wallet Add(Wallet Wallet)
+        public Wallet Add(Wallet wallet)
         {
-            var entry = _context.Wallets.Add(Wallet);
+            var entry = _context.Wallets.Add(wallet);
             _context.SaveChanges();
             return entry;
         }
 
-        public Wallet FindById(int WalletId)
+        public Wallet FindById(int walletId)
         {
-            return _context.Wallets.Include(w => w.CardHolder).Include(w => w.Cards).Where(w => w.WalletId.Equals(WalletId)).FirstOrDefault();
+            return _context.Wallets.Include(w => w.Cardholder).Include(w => w.Cards).Where(w => w.WalletId.Equals(walletId) && w.Deleted == false).FirstOrDefault();
         }
 
         public List<Wallet> Find(Func<Wallet, bool> filter)
         {
-            return _context.Wallets.Include(w => w.CardHolder).Include(w => w.Cards).Where(filter).ToList();
+            return _context.Wallets.Include(w => w.Cardholder).Include(w => w.Cards).Where(filter).ToList();
         }
 
-        public List<Wallet> FindByCardHolder(int CardHolderId)
+        public Wallet FindByCardholder(int cardholderId)
         {
-            return _context.Wallets.Include(w => w.CardHolder).Include(w => w.Cards).Where(w => w.CardHolder.CardHolderId == CardHolderId).ToList();
+            return _context.Wallets.Include(w => w.Cardholder).Include(w => w.Cards).Where(w => w.Cardholder.CardholderId == cardholderId && w.Deleted == false).FirstOrDefault();
         }
                 
-        public Wallet Edit(Wallet Wallet)
+        public Wallet Edit(Wallet wallet)
         {
-            _context.Wallets.Attach(Wallet);
-            var entry = _context.Entry(Wallet);
+            _context.Wallets.Attach(wallet);
+            var entry = _context.Entry(wallet);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
             return entry.Entity;
         }
 
-        public void Delete(Wallet Wallet)
+        public void Delete(Wallet wallet)
         {
-            Wallet.Deleted = true;
-            _context.Wallets.Attach(Wallet);
-            var entry = _context.Entry(Wallet);
+            wallet.Deleted = true;
+            _context.Wallets.Attach(wallet);
+            var entry = _context.Entry(wallet);
             entry.State = EntityState.Modified;
             _context.SaveChanges();
         }

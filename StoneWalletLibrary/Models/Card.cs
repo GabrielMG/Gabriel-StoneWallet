@@ -11,12 +11,12 @@ namespace StoneWalletLibrary.Models
         public int CardId { get; set; }
         public string Number { get; set; }
         public string CVV { get; set; }
-        public DateTime DueDate { get; set; }
+        public int DueDate { get; set; }
         public DateTime ExpirationDate { get; set; }
         public decimal Limit { get; set; }
         public decimal Credit { get; set; }
         public virtual Wallet Wallet { get; set; }
-        public virtual CardHolder CardHolder { get; set; }
+        public virtual Cardholder Cardholder { get; set; }
         public bool Deleted { get; set; }
     }
 }
