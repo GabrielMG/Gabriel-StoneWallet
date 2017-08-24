@@ -49,11 +49,17 @@
   <ItemGroup>
     <Compile Include="BusinessLogic\CardholderBusiness.cs" />
     <Compile Include="BusinessLogic\CardBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\ICardBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\ICardholderBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\IWalletBusiness.cs" />
     <Compile Include="BusinessLogic\WalletBusiness.cs" />
-    <Compile Include="Data\CardRepository.cs" />
-    <Compile Include="Data\StoneWalletContext.cs" />
-    <Compile Include="Data\CardholderRepository.cs" />
-    <Compile Include="Data\WalletRepository.cs" />
+    <Compile Include="Data\Repositories\CardRepository.cs" />
+    <Compile Include="Data\Interfaces\ICardholderRepository.cs" />
+    <Compile Include="Data\Interfaces\ICardRepository.cs" />
+    <Compile Include="Data\Interfaces\IWalletRepository.cs" />
+    <Compile Include="Data\Context\StoneWalletContext.cs" />
+    <Compile Include="Data\Repositories\CardholderRepository.cs" />
+    <Compile Include="Data\Repositories\WalletRepository.cs" />
     <Compile Include="Models\Card.cs" />
     <Compile Include="Models\Cardholder.cs" />
     <Compile Include="Models\Wallet.cs" />

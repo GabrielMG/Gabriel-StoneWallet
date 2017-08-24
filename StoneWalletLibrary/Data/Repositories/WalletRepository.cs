@@ -8,7 +8,7 @@ using System.Data.Entity;
 
 namespace StoneWalletLibrary.Data
 {
-    class WalletRepository
+    class WalletRepository : IWalletRepository
     {
         private readonly StoneWalletContext _context;
 
