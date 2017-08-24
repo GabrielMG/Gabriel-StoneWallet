@@ -12,48 +12,13 @@ namespace StoneWalletLibrary.BusinessLogic
     {
         private readonly WalletRepository _WalletRepository;
         private readonly CardRepository _CardRepository;
-        private readonly CardholderRepository _CardholderRepository;
 
-        public WalletBusiness(WalletRepository walletRepository, CardRepository cardRepository, CardholderRepository cardholderRepository)
+        public WalletBusiness(WalletRepository walletRepository, CardRepository cardRepository)
         {
             _WalletRepository = walletRepository;
             _CardRepository = cardRepository;
-            _CardholderRepository = cardholderRepository;
         }
 
-        public Card CreateCard(string number, string cvv, int dueDate, DateTime expirationDate, decimal limit, decimal credit, Cardholder cardholder)
-        {
-            var card = new Card();
-            card.Number = number;
-            card.CVV = cvv;
-            card.DueDate = dueDate;
-            card.ExpirationDate = expirationDate;
-            card.Limit = limit;
-            card.Credit = credit;
-            card.Cardholder = cardholder;
-            card.Deleted = false;
-            return CreateCard(card);
-        }
-
-        public Card CreateCard(Card card)
-        {
-            try
-            {
-                if (card.Cardholder == null || card.Deleted)
-                {
-                    return null;
-                }
-                if (card.Limit < card.Credit)
-                {
-                    card.Credit = card.Limit;
-                }
-                return _CardRepository.Add(card);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
 
         public Wallet CreateWallet(decimal userLimit, decimal maximumLimit, decimal credit, Cardholder cardholder, List<Card> cards)
         {
@@ -94,29 +59,6 @@ namespace StoneWalletLibrary.BusinessLogic
 
         }
 
-        public Cardholder CreateCardholder(string name, string nationalIdNumber, List<Card> cards)
-        {
-            var cardholder = new Cardholder();
-            cardholder.Name = name;
-            cardholder.NationalIdNumber = nationalIdNumber;
-            cardholder.Cards = cards;
-            cardholder.Deleted = false;
-            return CreateCardholder(cardholder);
-        }
-
-        public Cardholder CreateCardholder(Cardholder cardholder)
-        {
-            try
-            {
-                return _CardholderRepository.Add(cardholder);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-            
-        }
-
         public Wallet GetWallet(Cardholder cardholder)
         {
             return GetWallet(cardholder.CardholderId);
@@ -125,11 +67,6 @@ namespace StoneWalletLibrary.BusinessLogic
         public Wallet GetWallet(int cardholderId)
         {
             return _WalletRepository.FindByCardholder(cardholderId);
-        }
-
-        public Card GetCard(string number)
-        {
-            return _CardRepository.Find(c => c.Number == number && c.Deleted == false).FirstOrDefault();
         }
 
         public List<Card> SortCardsByPriority(Wallet wallet)
@@ -280,20 +217,6 @@ namespace StoneWalletLibrary.BusinessLogic
             }
         }
 
-        public bool DeleteCard(Card card)
-        {
-            try
-            {
-                RemoveCardFromWallet(card);
-                _CardRepository.Delete(card);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public bool DeleteWallet(Wallet wallet)
         {
             try
@@ -303,24 +226,6 @@ namespace StoneWalletLibrary.BusinessLogic
                     RemoveCardFromWallet(card);
                 }
                 _WalletRepository.Delete(wallet);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public bool DeleteCardholder(Cardholder cardholder)
-        {
-            try
-            {
-                DeleteWallet(cardholder.Wallet);
-                foreach (Card card in cardholder.Cards)
-                {
-                    DeleteCard(card);
-                }
-                _CardholderRepository.Delete(cardholder);
                 return true;
             }
             catch (Exception)

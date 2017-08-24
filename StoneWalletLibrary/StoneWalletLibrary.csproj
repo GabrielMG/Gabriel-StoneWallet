@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusinessLogic\CardholderBusiness.cs" />
+    <Compile Include="BusinessLogic\CardBusiness.cs" />
     <Compile Include="BusinessLogic\WalletBusiness.cs" />
     <Compile Include="Data\CardRepository.cs" />
     <Compile Include="Data\StoneWalletContext.cs" />
