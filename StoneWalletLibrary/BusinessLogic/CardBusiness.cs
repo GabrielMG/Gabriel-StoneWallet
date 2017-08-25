@@ -8,7 +8,7 @@ using StoneWalletLibrary.Models;
 
 namespace StoneWalletLibrary.BusinessLogic
 {
-    class CardBusiness : ICardBusiness
+    public class CardBusiness : ICardBusiness
     {
         private readonly ICardRepository _CardRepository;
         private readonly IWalletBusiness _WalletBusiness;

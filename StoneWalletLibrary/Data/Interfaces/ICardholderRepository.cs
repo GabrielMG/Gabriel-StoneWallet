@@ -4,7 +4,7 @@ using StoneWalletLibrary.Models;
 
 namespace StoneWalletLibrary.Data
 {
-    interface ICardholderRepository
+    public interface ICardholderRepository
     {
         Cardholder Add(Cardholder cardholder);
         void Delete(Cardholder cardholder);

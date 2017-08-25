@@ -8,7 +8,7 @@ using StoneWalletLibrary.Models;
 
 namespace StoneWalletLibrary.BusinessLogic
 {
-    class CardholderBusiness : ICardholderBusiness
+    public class CardholderBusiness : ICardholderBusiness
     {
         private readonly ICardholderRepository _CardholderRepository;
         private readonly ICardBusiness _CardBusiness;
@@ -21,13 +21,14 @@ namespace StoneWalletLibrary.BusinessLogic
             _WalletBusiness = walletBusiness;
         }
 
-        public Cardholder CreateCardholder(string name, string nationalIdNumber, List<Card> cards)
+        public Cardholder CreateCardholder(string name, string nationalIdNumber, string email, List<Card> cards)
         {
             var cardholder = new Cardholder();
             cardholder.Name = name;
             cardholder.NationalIdNumber = nationalIdNumber;
             cardholder.Cards = cards;
             cardholder.Deleted = false;
+            cardholder.Email = email;
             return CreateCardholder(cardholder);
         }
 
@@ -50,7 +51,12 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public Cardholder GetCardholderByNationalIdNumber(string nationalIdNumber)
         {
-            return _CardholderRepository.Find(ch => ch.NationalIdNumber.Contains(nationalIdNumber.Trim()) && ch.Deleted == false).FirstOrDefault();
+            return _CardholderRepository.Find(ch => ch.NationalIdNumber == nationalIdNumber.Trim() && ch.Deleted == false).FirstOrDefault();
+        }
+
+        public Cardholder GetCardholderByEmail(string email)
+        {
+            return _CardholderRepository.Find(ch => ch.Email.Contains(email.Trim()) && ch.Deleted == false).FirstOrDefault();
         }
 
         public Cardholder GetCardholderById(int cardholderId)
@@ -58,10 +64,55 @@ namespace StoneWalletLibrary.BusinessLogic
             return _CardholderRepository.FindById(cardholderId);
         }
 
+        public Cardholder EditCardholderName(int cardholderId, string name)
+        {
+            try
+            {
+                var cardholder = GetCardholderById(cardholderId);
+                if (cardholder == null)
+                {
+                    return null;
+                }
+                cardholder.Name = name;
+                return _CardholderRepository.Edit(cardholder);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Cardholder EditCardholderNationalIdNumber(int cardholderId, string nationalIdNumber)
+        {
+            try
+            {
+                var cardholder = GetCardholderById(cardholderId);
+                if (cardholder == null)
+                {
+                    return null;
+                }
+                cardholder.NationalIdNumber = nationalIdNumber;
+                return _CardholderRepository.Edit(cardholder);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public bool DeleteCardHolder(int cardholderId)
+        {
+            return DeleteCardholder(GetCardholderById(cardholderId));
+        }
+
         public bool DeleteCardholder(Cardholder cardholder)
         {
             try
             {
+                if (cardholder == null)
+                {
+                    return false;
+                }
                 _WalletBusiness.DeleteWallet(cardholder.Wallet);
                 foreach (Card card in cardholder.Cards)
                 {

@@ -3,7 +3,7 @@ using StoneWalletLibrary.Models;
 
 namespace StoneWalletLibrary.BusinessLogic
 {
-    interface IWalletBusiness
+    public interface IWalletBusiness
     {
         bool AddCardToWallet(Card card, Wallet wallet);
         Wallet CreateWallet(decimal userLimit, decimal maximumLimit, decimal credit, Cardholder cardholder, List<Card> cards);
