@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using StoneWalletLibrary.Data;
 using StoneWalletLibrary.Models;
+using System.Data.Entity;
 
 namespace StoneWalletLibrary.BusinessLogic
 {
@@ -61,19 +62,37 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public Wallet GetWallet(Cardholder cardholder)
         {
-            return GetWallet(cardholder.CardholderId);
+            try
+            {
+                return GetWallet(cardholder.CardholderId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public Wallet GetWallet(int cardholderId)
         {
-            return _WalletRepository.FindByCardholder(cardholderId);
+            try
+            {
+                return _WalletRepository.FindByCardholder(cardholderId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        public List<Card> SortCardsByPriority(Wallet wallet)
+        private List<Card> SortCardsByPriority(Wallet wallet)
         {
-            var now = DateTime.Now; //verificar como fazer pro now não pegar hora minuto segundo
-            List<Card> thisMonth = wallet.Cards.Where(c => c.DueDate >= now.Day && c.ExpirationDate > now).OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
-            List<Card> nextMonth = wallet.Cards.Where(c => c.DueDate < now.Day && c.ExpirationDate > now).OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
+            var now = DateTime.Now;
+
+            List<Card> thisMonth = wallet.Cards.Where(c => c.DueDate >= now.Day && DbFunctions.TruncateTime(c.ExpirationDate) > DbFunctions.TruncateTime(now))
+                    .OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
+            List<Card> nextMonth = wallet.Cards.Where(c => c.DueDate < now.Day && DbFunctions.TruncateTime(c.ExpirationDate) > DbFunctions.TruncateTime(now))
+                    .OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
+
             return thisMonth.Concat(nextMonth).ToList();
         }
 
@@ -108,6 +127,10 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public bool ExecutePurchase(decimal value, Wallet wallet)
         {
+            if (wallet == null)
+            {
+                return false;
+            }
             if (value <= wallet.UserLimit && value <= wallet.Credit)
             {
                 return PurchaseLoop(value, SortCardsByPriority(wallet));
@@ -215,6 +238,11 @@ namespace StoneWalletLibrary.BusinessLogic
             {
                 return false;
             }
+        }
+
+        public bool DeleteWallet(int cardholderId)
+        {
+            return DeleteWallet(GetWallet(cardholderId));
         }
 
         public bool DeleteWallet(Wallet wallet)

@@ -62,8 +62,6 @@
     <Compile Include="Data\Configuration\Configuration.cs" />
     <Compile Include="Data\Configuration\Initializer.cs" />
     <Compile Include="Data\Configuration\SetMigration.cs" />
-    <Compile Include="Data\Configuration\StoneWalletUserManager.cs" />
-    <Compile Include="Data\Configuration\StoneWalletUserStore.cs" />
     <Compile Include="Data\Repositories\CardRepository.cs" />
     <Compile Include="Data\Interfaces\ICardholderRepository.cs" />
     <Compile Include="Data\Interfaces\ICardRepository.cs" />

@@ -7,8 +7,7 @@ namespace StoneWalletLibrary.BusinessLogic
     {
         Cardholder CreateCardholder(Cardholder cardholder);
         Cardholder CreateCardholder(string name, string nationalIdNumber, string email, List<Card> cards);
-        Cardholder EditCardholderName(int cardholderId, string name);
-        Cardholder EditCardholderNationalIdNumber(int cardholderId, string nationalIdNumber);
+        Cardholder EditCardholder(Cardholder cardholder);
         bool DeleteCardHolder(int cardholderId);
         bool DeleteCardholder(Cardholder cardholder);
         Cardholder GetCardholderById(int cardholderId);

@@ -31,55 +31,81 @@ namespace StoneWalletService.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetCardholderById(int cardholderId)
+        public IHttpActionResult GetCardholder()
         {
-            return Ok(_CardholderBusiness.GetCardholderById(cardholderId));
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetCardholderByName(string name)
-        {
-            return Ok(_CardholderBusiness.GetCardholderByName(name));
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetCardholderByNationalIdNumber(string nationalIdNumber)
-        {
-            return Ok(_CardholderBusiness.GetCardholderByNationalIdNumber(nationalIdNumber));
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetCardholderByEmail(string email)
-        {
-            return Ok(_CardholderBusiness.GetCardholderByEmail(email));
+            StoneWalletLibrary.Models.Cardholder result = null;
+            result = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            if (result == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
+            }
+            return Ok(Cardholder.ToViewModel(result));
         }
 
         [HttpPost]
         public IHttpActionResult CreateCardholder([FromBody]Cardholder cardholder)
         {
+            StoneWalletLibrary.Models.Cardholder result = null;
             if (String.IsNullOrEmpty(cardholder.Email?.Trim()))
             {
                 cardholder.Email = RequestContext.Principal.Identity.Name;
+                result = _CardholderBusiness.CreateCardholder(cardholder.ToModel());
             }
-            return Ok(_CardholderBusiness.CreateCardholder(cardholder.ToModel()));
+            else if (cardholder.Email == RequestContext.Principal.Identity.Name)
+            {
+                result = _CardholderBusiness.CreateCardholder(cardholder.ToModel());
+            }
+
+            if (result == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Cardholder not created.");
+            }
+            return Ok(Cardholder.ToViewModel(result));
         }
 
         [HttpPut]
-        public IHttpActionResult EditCardholderName(int cardholderId, string name)
+        public IHttpActionResult EditCardholderName(string name)
         {
-            return Ok(_CardholderBusiness.EditCardholderName(cardholderId, name));
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            if (cardholder == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
+            }
+            cardholder.Name = name;
+            var result = _CardholderBusiness.EditCardholder(cardholder);
+            if (result == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Error: Unable to edit cardholder.");
+            }
+            return Ok(Cardholder.ToViewModel(result));
         }
 
         [HttpPut]
-        public IHttpActionResult EditCardholderNationalIdNumber(int cardholderId, string nationalIdNumber)
+        public IHttpActionResult EditCardholderNationalIdNumber(string nationalIdNumber)
         {
-            return Ok(_CardholderBusiness.EditCardholderNationalIdNumber(cardholderId, nationalIdNumber));
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            if (cardholder == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
+            }
+            cardholder.NationalIdNumber = nationalIdNumber;
+            var result = _CardholderBusiness.EditCardholder(cardholder);
+            if (result == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Error: Unable to edit cardholder.");
+            }
+            return Ok(Cardholder.ToViewModel(result));
         }
 
         [HttpDelete]
-        public IHttpActionResult DeleteCardholder(int cardholderId)
+        public IHttpActionResult DeleteCardholder()
         {
-            return Ok(_CardholderBusiness.DeleteCardHolder(cardholderId));
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            if (cardholder == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
+            }
+            return Ok(_CardholderBusiness.DeleteCardHolder(cardholder.CardholderId));
         }
     }
 }

@@ -46,35 +46,9 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public List<Cardholder> GetCardholderByName(string name)
         {
-            return _CardholderRepository.Find(ch => ch.Name.Contains(name.Trim()) && ch.Deleted == false).ToList();
-        }
-
-        public Cardholder GetCardholderByNationalIdNumber(string nationalIdNumber)
-        {
-            return _CardholderRepository.Find(ch => ch.NationalIdNumber == nationalIdNumber.Trim() && ch.Deleted == false).FirstOrDefault();
-        }
-
-        public Cardholder GetCardholderByEmail(string email)
-        {
-            return _CardholderRepository.Find(ch => ch.Email.Contains(email.Trim()) && ch.Deleted == false).FirstOrDefault();
-        }
-
-        public Cardholder GetCardholderById(int cardholderId)
-        {
-            return _CardholderRepository.FindById(cardholderId);
-        }
-
-        public Cardholder EditCardholderName(int cardholderId, string name)
-        {
             try
             {
-                var cardholder = GetCardholderById(cardholderId);
-                if (cardholder == null)
-                {
-                    return null;
-                }
-                cardholder.Name = name;
-                return _CardholderRepository.Edit(cardholder);
+                return _CardholderRepository.Find(ch => ch.Name.Contains(name.Trim()) && ch.Deleted == false).ToList();
             }
             catch (Exception)
             {
@@ -82,16 +56,46 @@ namespace StoneWalletLibrary.BusinessLogic
             }
         }
 
-        public Cardholder EditCardholderNationalIdNumber(int cardholderId, string nationalIdNumber)
+        public Cardholder GetCardholderByNationalIdNumber(string nationalIdNumber)
         {
             try
             {
-                var cardholder = GetCardholderById(cardholderId);
-                if (cardholder == null)
-                {
-                    return null;
-                }
-                cardholder.NationalIdNumber = nationalIdNumber;
+                return _CardholderRepository.Find(ch => ch.NationalIdNumber == nationalIdNumber.Trim() && ch.Deleted == false).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Cardholder GetCardholderByEmail(string email)
+        {
+            try
+            {
+                return _CardholderRepository.Find(ch => ch.Email.Contains(email.Trim()) && ch.Deleted == false).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Cardholder GetCardholderById(int cardholderId)
+        {
+            try
+            {
+                return _CardholderRepository.FindById(cardholderId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Cardholder EditCardholder(Cardholder cardholder)
+        {
+            try
+            {
                 return _CardholderRepository.Edit(cardholder);
             }
             catch (Exception)

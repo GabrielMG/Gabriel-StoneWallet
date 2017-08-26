@@ -55,7 +55,84 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public Card GetCard(string number)
         {
-            return _CardRepository.Find(c => c.Number == number && c.Deleted == false).FirstOrDefault();
+            try
+            {
+                return _CardRepository.Find(c => c.Number == number && c.Deleted == false).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Card GetCardById(int cardId)
+        {
+            try
+            {
+                return _CardRepository.FindById(cardId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public List<Card> GetCardsByCardholder(int cardholderId)
+        {
+            try
+            {
+                return _CardRepository.Find(c => c.Cardholder.CardholderId == cardholderId && c.Deleted == false).ToList();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public Card PayCredit(int cardId, decimal value)
+        {
+            var card = GetCardById(cardId);
+            if (card == null)
+            {
+                return null;
+            }
+            card.Credit = card.Credit + value;
+            if (card.Credit > card.Limit)
+            {
+                //only here because I can't limit how much money is sent through "value"
+                //somente aqui porque eu não posso limitar quanto dinheiro está sendo enviado através do "value"
+                card.Credit = card.Limit;
+            }
+            try
+            {
+                return _CardRepository.Edit(card);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public bool VerifyCardOwnership(int cardId, int cardholderId)
+        {
+            try
+            {
+                var card = _CardRepository.FindById(cardId);
+                if (card != null)
+                {
+                    return (card.Cardholder.CardholderId == cardholderId);
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public bool DeleteCard(int cardId)
+        {
+            return DeleteCard(GetCardById(cardId));
         }
 
         public bool DeleteCard(Card card)
