@@ -10,17 +10,35 @@ namespace StoneWalletService.Controllers
 {
     public abstract class BaseController : ApiController
     {
-        protected StoneWalletContext context { get; set; }
+        protected IStoneWalletContext Context { get; set; }
+        protected bool TestUserFlag;
 
         public BaseController()
         {
-            context = new StoneWalletContext();
+            Context = new StoneWalletContext();
+        }
+
+        public BaseController(IStoneWalletContext context)
+        {
+            Context = context;
         }
 
         protected override void Dispose(bool disposing)
         {
-            context.Dispose();
+            Context.Dispose();
             base.Dispose(disposing);
+        }
+
+        protected string GetCurrentUserEmail()
+        {
+            if (TestUserFlag)
+            {
+                return "user@test.com";
+            }
+            else
+            {
+                return RequestContext.Principal.Identity.Name;
+            }
         }
     }
 }

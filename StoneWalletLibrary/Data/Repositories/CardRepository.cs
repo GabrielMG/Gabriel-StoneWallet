@@ -10,9 +10,9 @@ namespace StoneWalletLibrary.Data
 {
     public class CardRepository : ICardRepository
     {
-        private readonly StoneWalletContext _context;
+        private readonly IStoneWalletContext _context;
 
-        public CardRepository(StoneWalletContext context)
+        public CardRepository(IStoneWalletContext context)
         {
             _context = context;
         }
@@ -47,18 +47,16 @@ namespace StoneWalletLibrary.Data
         public Card Edit(Card card)
         {
             _context.Cards.Attach(card);
-            var entry = _context.Entry(card);
-            entry.State = EntityState.Modified;
+            var result = _context.MarkAsModified(card);
             _context.SaveChanges();
-            return entry.Entity;
+            return result;
         }
 
         public void Delete(Card card)
         {
             card.Deleted = true;
             _context.Cards.Attach(card);
-            var entry = _context.Entry(card);
-            entry.State = EntityState.Modified;
+            _context.MarkAsModified(card);
             _context.SaveChanges();
         }
 

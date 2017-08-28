@@ -47,22 +47,26 @@ namespace StoneWalletService.ViewModels
             return new StoneWalletLibrary.Models.Cardholder(Name, NationalIdNumber, Email, cards, Wallet.ToModel());
         }
 
-        public static Cardholder ToViewModel(StoneWalletLibrary.Models.Cardholder cardholder)
-        {
-            var cards = new List<Card>();
-            if (cardholder.Cards != null)
-            {
-                foreach (var card in cardholder.Cards)
-                {
-                    cards.Add(Card.ToViewModel(card));
-                }
-            }
-            if (cardholder.Wallet == null)
-            {
-                return new Cardholder(cardholder.CardholderId, cardholder.Name, cardholder.NationalIdNumber, cardholder.Email, cards, null);
-            }
+        //public static Cardholder ToViewModel(StoneWalletLibrary.Models.Cardholder cardholder)
+        //{
+        //    if (cardholder == null)
+        //    {
+        //        return null;
+        //    }
+        //    var cards = new List<Card>();
+        //    if (cardholder.Cards != null)
+        //    {
+        //        foreach (var card in cardholder.Cards)
+        //        {
+        //            cards.Add(Card.ToViewModel(card));
+        //        }
+        //    }
+        //    if (cardholder.Wallet == null)
+        //    {
+        //        return new Cardholder(cardholder.CardholderId, cardholder.Name, cardholder.NationalIdNumber, cardholder.Email, cards, null);
+        //    }
 
-            return new Cardholder(cardholder.CardholderId, cardholder.Name, cardholder.NationalIdNumber, cardholder.Email, cards, Wallet.ToViewModel(cardholder.Wallet));
-        }
+        //    return new Cardholder(cardholder.CardholderId, cardholder.Name, cardholder.NationalIdNumber, cardholder.Email, cards, Wallet.ToViewModel(cardholder.Wallet));
+        //}
     }
 }

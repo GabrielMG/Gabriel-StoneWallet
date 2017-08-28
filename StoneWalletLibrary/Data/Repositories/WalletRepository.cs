@@ -10,9 +10,9 @@ namespace StoneWalletLibrary.Data
 {
     public class WalletRepository : IWalletRepository
     {
-        private readonly StoneWalletContext _context;
+        private readonly IStoneWalletContext _context;
 
-        public WalletRepository(StoneWalletContext context)
+        public WalletRepository(IStoneWalletContext context)
         {
             _context = context;
         }
@@ -42,18 +42,16 @@ namespace StoneWalletLibrary.Data
         public Wallet Edit(Wallet wallet)
         {
             _context.Wallets.Attach(wallet);
-            var entry = _context.Entry(wallet);
-            entry.State = EntityState.Modified;
+            var result = _context.MarkAsModified(wallet);
             _context.SaveChanges();
-            return entry.Entity;
+            return result;
         }
 
         public void Delete(Wallet wallet)
         {
             wallet.Deleted = true;
             _context.Wallets.Attach(wallet);
-            var entry = _context.Entry(wallet);
-            entry.State = EntityState.Modified;
+            _context.MarkAsModified(wallet);
             _context.SaveChanges();
         }
     }

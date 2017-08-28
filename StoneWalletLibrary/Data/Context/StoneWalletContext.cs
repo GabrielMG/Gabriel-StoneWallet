@@ -20,7 +20,7 @@ namespace StoneWalletLibrary.Data
         }
     }
 
-    public class StoneWalletContext : IdentityDbContext<ApplicationUser>
+    public class StoneWalletContext : IdentityDbContext<ApplicationUser>, IStoneWalletContext
     {
         public StoneWalletContext() : base("StoneWalletContext")
         {
@@ -35,6 +35,24 @@ namespace StoneWalletLibrary.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Cardholder>().HasOptional(c => c.Wallet);
             modelBuilder.Entity<Wallet>().HasRequired(w => w.Cardholder);
+        }
+
+        public Wallet MarkAsModified(Wallet item)
+        {
+            Entry(item).State = EntityState.Modified;
+            return Entry(item).Entity;
+        }
+
+        public Card MarkAsModified(Card item)
+        {
+            Entry(item).State = EntityState.Modified;
+            return Entry(item).Entity;
+        }
+
+        public Cardholder MarkAsModified(Cardholder item)
+        {
+            Entry(item).State = EntityState.Modified;
+            return Entry(item).Entity;
         }
     }
 }

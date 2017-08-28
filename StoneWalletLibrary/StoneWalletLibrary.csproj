@@ -55,13 +55,16 @@
   <ItemGroup>
     <Compile Include="BusinessLogic\CardholderBusiness.cs" />
     <Compile Include="BusinessLogic\CardBusiness.cs" />
+    <Compile Include="BusinessLogic\Helper\Clock.cs" />
     <Compile Include="BusinessLogic\Interfaces\ICardBusiness.cs" />
     <Compile Include="BusinessLogic\Interfaces\ICardholderBusiness.cs" />
+    <Compile Include="BusinessLogic\Interfaces\IClock.cs" />
     <Compile Include="BusinessLogic\Interfaces\IWalletBusiness.cs" />
     <Compile Include="BusinessLogic\WalletBusiness.cs" />
     <Compile Include="Data\Configuration\Configuration.cs" />
     <Compile Include="Data\Configuration\Initializer.cs" />
     <Compile Include="Data\Configuration\SetMigration.cs" />
+    <Compile Include="Data\Interfaces\IStoneWalletContext.cs" />
     <Compile Include="Data\Repositories\CardRepository.cs" />
     <Compile Include="Data\Interfaces\ICardholderRepository.cs" />
     <Compile Include="Data\Interfaces\ICardRepository.cs" />

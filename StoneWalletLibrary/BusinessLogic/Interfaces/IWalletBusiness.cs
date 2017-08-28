@@ -10,7 +10,7 @@ namespace StoneWalletLibrary.BusinessLogic
         Wallet CreateWallet(Wallet wallet);
         bool DeleteWallet(int cardholderId);
         bool DeleteWallet(Wallet wallet);
-        bool ExecutePurchase(decimal value, Wallet wallet);
+        Wallet ExecutePurchase(decimal value, Wallet wallet);
         Wallet GetWallet(Cardholder cardholder);
         Wallet GetWallet(int cardholderId);
         bool RemoveCardFromWallet(Card card);

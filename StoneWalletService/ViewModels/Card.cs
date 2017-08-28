@@ -38,12 +38,16 @@ namespace StoneWalletService.ViewModels
 
         public StoneWalletLibrary.Models.Card ToModel()
         {
-            return new StoneWalletLibrary.Models.Card(Number, CVV, DueDate, ExpirationDate, Limit, Credit, Wallet.ToModel(), Cardholder.ToModel());
+            return new StoneWalletLibrary.Models.Card(Number, CVV, DueDate, ExpirationDate, Limit, Credit, Wallet?.ToModel(), Cardholder?.ToModel());
         }
 
-        public static Card ToViewModel(StoneWalletLibrary.Models.Card card)
-        {
-            return new Card(card.CardId, card.Number, card.CVV, card.DueDate, card.ExpirationDate, card.Limit, card.Credit, Wallet.ToViewModel(card.Wallet), Cardholder.ToViewModel(card.Cardholder));
-        }
+        //public static Card ToViewModel(StoneWalletLibrary.Models.Card card)
+        //{
+        //    if (card == null)
+        //    {
+        //        return null;
+        //    }
+        //    return new Card(card.CardId, card.Number, card.CVV, card.DueDate, card.ExpirationDate, card.Limit, card.Credit, Wallet.ToViewModel(card.Wallet), Cardholder.ToViewModel(card.Cardholder));
+        //}
     }
 }

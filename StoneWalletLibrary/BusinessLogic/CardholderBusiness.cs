@@ -23,12 +23,14 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public Cardholder CreateCardholder(string name, string nationalIdNumber, string email, List<Card> cards)
         {
-            var cardholder = new Cardholder();
-            cardholder.Name = name;
-            cardholder.NationalIdNumber = nationalIdNumber;
-            cardholder.Cards = cards;
-            cardholder.Deleted = false;
-            cardholder.Email = email;
+            var cardholder = new Cardholder
+            {
+                Name = name,
+                NationalIdNumber = nationalIdNumber,
+                Cards = cards,
+                Deleted = false,
+                Email = email
+            };
             return CreateCardholder(cardholder);
         }
 
@@ -60,7 +62,17 @@ namespace StoneWalletLibrary.BusinessLogic
         {
             try
             {
-                return _CardholderRepository.Find(ch => ch.NationalIdNumber == nationalIdNumber.Trim() && ch.Deleted == false).FirstOrDefault();
+                var cardholder = _CardholderRepository.Find(ch => ch.NationalIdNumber == nationalIdNumber.Trim() && ch.Deleted == false).FirstOrDefault();
+                if (cardholder != null && cardholder?.Cards != null)
+                {
+                    cardholder.Cards = cardholder.Cards.Where(c => c.Deleted == false).ToList();
+                    if (cardholder.Wallet != null && cardholder?.Wallet?.Cards != null)
+                    {
+                        cardholder.Wallet.Cards = cardholder.Wallet.Cards.Where(c => c.Deleted == false).ToList();
+                    }
+                }
+
+                return cardholder;
             }
             catch (Exception)
             {
@@ -72,7 +84,16 @@ namespace StoneWalletLibrary.BusinessLogic
         {
             try
             {
-                return _CardholderRepository.Find(ch => ch.Email.Contains(email.Trim()) && ch.Deleted == false).FirstOrDefault();
+                var cardholder = _CardholderRepository.Find(ch => ch.Email.Contains(email.Trim()) && ch.Deleted == false).FirstOrDefault();
+                if (cardholder != null && cardholder?.Cards != null)
+                {
+                    cardholder.Cards = cardholder.Cards.Where(c => c.Deleted == false).ToList();
+                    if (cardholder.Wallet != null && cardholder?.Wallet?.Cards != null)
+                    {
+                        cardholder.Wallet.Cards = cardholder.Wallet.Cards.Where(c => c.Deleted == false).ToList();
+                    }
+                }
+                return cardholder;
             }
             catch (Exception)
             {
@@ -84,7 +105,16 @@ namespace StoneWalletLibrary.BusinessLogic
         {
             try
             {
-                return _CardholderRepository.FindById(cardholderId);
+                var cardholder = _CardholderRepository.FindById(cardholderId);
+                if (cardholder != null && cardholder?.Cards != null)
+                {
+                    cardholder.Cards = cardholder.Cards.Where(c => c.Deleted == false).ToList();
+                    if (cardholder.Wallet != null && cardholder?.Wallet?.Cards != null)
+                    {
+                        cardholder.Wallet.Cards = cardholder.Wallet.Cards.Where(c => c.Deleted == false).ToList();
+                    }
+                }
+                return cardholder;
             }
             catch (Exception)
             {

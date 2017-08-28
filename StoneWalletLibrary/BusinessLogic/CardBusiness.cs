@@ -21,15 +21,17 @@ namespace StoneWalletLibrary.BusinessLogic
 
         public Card CreateCard(string number, string cvv, int dueDate, DateTime expirationDate, decimal limit, decimal credit, Cardholder cardholder)
         {
-            var card = new Card();
-            card.Number = number;
-            card.CVV = cvv;
-            card.DueDate = dueDate;
-            card.ExpirationDate = expirationDate;
-            card.Limit = limit;
-            card.Credit = credit;
-            card.Cardholder = cardholder;
-            card.Deleted = false;
+            var card = new Card
+            {
+                Number = number,
+                CVV = cvv,
+                DueDate = dueDate,
+                ExpirationDate = expirationDate,
+                Limit = limit,
+                Credit = credit,
+                Cardholder = cardholder,
+                Deleted = false
+            };
             return CreateCard(card);
         }
 

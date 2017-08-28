@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using StoneWalletLibrary.Data;
 using StoneWalletLibrary.Models;
 using System.Data.Entity;
+using StoneWalletLibrary.BusinessLogic.Interfaces;
 
 namespace StoneWalletLibrary.BusinessLogic
 {
@@ -13,23 +14,27 @@ namespace StoneWalletLibrary.BusinessLogic
     {
         private readonly IWalletRepository _WalletRepository;
         private readonly ICardRepository _CardRepository;
+        private readonly IClock _Clock;
 
-        public WalletBusiness(IWalletRepository walletRepository, ICardRepository cardRepository)
+        public WalletBusiness(IWalletRepository walletRepository, ICardRepository cardRepository, IClock clock)
         {
             _WalletRepository = walletRepository;
             _CardRepository = cardRepository;
+            _Clock = clock;
         }
 
 
         public Wallet CreateWallet(decimal userLimit, decimal maximumLimit, decimal credit, Cardholder cardholder, List<Card> cards)
         {
-            var wallet = new Wallet();
-            wallet.UserLimit = userLimit;
-            wallet.MaximumLimit = maximumLimit;
-            wallet.Credit = credit;
-            wallet.Cardholder = cardholder;
-            wallet.Cards = cards;
-            wallet.Deleted = false;
+            var wallet = new Wallet
+            {
+                UserLimit = userLimit,
+                MaximumLimit = maximumLimit,
+                Credit = credit,
+                Cardholder = cardholder,
+                Cards = cards,
+                Deleted = false
+            };
             return CreateWallet(wallet);
         }
 
@@ -76,7 +81,12 @@ namespace StoneWalletLibrary.BusinessLogic
         {
             try
             {
-                return _WalletRepository.FindByCardholder(cardholderId);
+                var wallet = _WalletRepository.FindByCardholder(cardholderId);
+                if (wallet != null && wallet?.Cards != null)
+                {
+                    wallet.Cards = wallet.Cards.Where(c => c.Deleted == false).ToList();
+                }
+                return wallet;
             }
             catch (Exception)
             {
@@ -86,14 +96,18 @@ namespace StoneWalletLibrary.BusinessLogic
 
         private List<Card> SortCardsByPriority(Wallet wallet)
         {
-            var now = DateTime.Now;
+            var now = _Clock.Now;
 
-            List<Card> thisMonth = wallet.Cards.Where(c => c.DueDate >= now.Day && DbFunctions.TruncateTime(c.ExpirationDate) > DbFunctions.TruncateTime(now))
-                    .OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
-            List<Card> nextMonth = wallet.Cards.Where(c => c.DueDate < now.Day && DbFunctions.TruncateTime(c.ExpirationDate) > DbFunctions.TruncateTime(now))
-                    .OrderByDescending(c => c.DueDate).ThenByDescending(c => c.Credit).ToList();
+            int daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
 
-            return thisMonth.Concat(nextMonth).ToList();
+            List<Card> cardsDueEndOfTheMonth = wallet.Cards.Where(c => c.DueDate >= daysInMonth && c.ExpirationDate > now)
+                    .OrderBy(c => c.Credit).ToList();
+            List<Card> cardsDueThisMonth = wallet.Cards.Where(c => c.DueDate >= now.Day && c.DueDate < daysInMonth && c.ExpirationDate > now)
+                    .OrderByDescending(c => c.DueDate).ThenBy(c => c.Credit).ToList();
+            List<Card> cardsDueNextMonth = wallet.Cards.Where(c => c.DueDate < now.Day && c.ExpirationDate > now)
+                    .OrderByDescending(c => c.DueDate).ThenBy(c => c.Credit).ToList();
+
+            return cardsDueNextMonth.Concat(cardsDueEndOfTheMonth).Concat(cardsDueThisMonth).ToList();
         }
 
         private bool PurchaseLoop(decimal value, List<Card> cardsByPriority)
@@ -125,19 +139,23 @@ namespace StoneWalletLibrary.BusinessLogic
             }
         }
 
-        public bool ExecutePurchase(decimal value, Wallet wallet)
+        public Wallet ExecutePurchase(decimal value, Wallet wallet)
         {
             if (wallet == null)
             {
-                return false;
+                return null;
             }
             if (value <= wallet.UserLimit && value <= wallet.Credit)
             {
-                return PurchaseLoop(value, SortCardsByPriority(wallet));
+                if (PurchaseLoop(value, SortCardsByPriority(wallet)))
+                {
+                    return wallet;
+                }
+                return null;
             }
             else
             {
-                return false;
+                return null;
             }
         }
 

@@ -10,6 +10,7 @@ using StoneWalletLibrary.Data;
 using StoneWalletLibrary.BusinessLogic;
 using StoneWalletService.ViewModels;
 using System.Threading.Tasks;
+using StoneWalletLibrary.BusinessLogic.Interfaces;
 
 namespace StoneWalletService.Controllers
 {
@@ -22,10 +23,23 @@ namespace StoneWalletService.Controllers
 
         public WalletController()
         {
-            var walletRepository = new WalletRepository(context);
-            var cardRepository = new CardRepository(context);
-            var cardholderRepository = new CardholderRepository(context);
-            _WalletBusiness = new WalletBusiness(walletRepository, cardRepository);
+            Configure(new WalletRepository(Context), new CardRepository(Context), new CardholderRepository(Context), new Clock());
+        }
+
+        public WalletController(IStoneWalletContext context) : base(context)
+        {
+            Configure(new WalletRepository(Context), new CardRepository(Context), new CardholderRepository(Context), new Clock());
+        }
+
+        public WalletController(bool testUserFlag, IWalletRepository walletRepository, ICardRepository cardRepository, ICardholderRepository cardholderRepository, IClock clock)
+        {
+            Configure(walletRepository, cardRepository, cardholderRepository, clock);
+            TestUserFlag = testUserFlag;
+        }
+
+        private void Configure(IWalletRepository walletRepository, ICardRepository cardRepository, ICardholderRepository cardholderRepository, IClock clock)
+        {
+            _WalletBusiness = new WalletBusiness(walletRepository, cardRepository, clock);
             _CardBusiness = new CardBusiness(cardRepository, _WalletBusiness);
             _CardholderBusiness = new CardholderBusiness(cardholderRepository, _CardBusiness, _WalletBusiness);
         }
@@ -33,7 +47,7 @@ namespace StoneWalletService.Controllers
         [HttpGet]
         public IHttpActionResult GetWallet()
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
@@ -41,41 +55,39 @@ namespace StoneWalletService.Controllers
             var result = _WalletBusiness.GetWallet(cardholder.CardholderId);
             if (result != null)
             {
-                return Ok(Wallet.ToViewModel(result));
+                return Ok(result);
             }
             return Content(HttpStatusCode.BadRequest, "Couldn't find any wallet associated with this user account.");
         }
 
         [HttpPost]
-        public IHttpActionResult CreateWallet([FromBody]Wallet wallet)
+        public IHttpActionResult CreateWallet()
         {
             StoneWalletLibrary.Models.Wallet result = null;
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
             }
-            if (wallet.Cardholder == null)
-            {
-                wallet.Cardholder = Cardholder.ToViewModel(cardholder);
-                result = _WalletBusiness.CreateWallet(wallet.ToModel());
-            }
-            else
-            {
-                return Content(HttpStatusCode.BadRequest, "The cardholder property should be null to create a new wallet. The cardholder associated with the current user will be set to this wallet automatically");
-            }
+
+            var walletModel = new StoneWalletLibrary.Models.Wallet();
+            walletModel.Cardholder = cardholder;
+            result = _WalletBusiness.CreateWallet(walletModel);
 
             if (result == null)
             {
                 return Content(HttpStatusCode.BadRequest, "Wallet not created.");
             }
-            return Ok(Wallet.ToViewModel(result));
+
+            _CardholderBusiness.EditCardholder(result.Cardholder);
+            
+            return Ok(result);
         }
 
-        [HttpPost]
-        public IHttpActionResult ExecutePurchase(decimal value)
+        [HttpPut]
+        public IHttpActionResult SetUserDefinedLimit(decimal value)
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
@@ -87,20 +99,46 @@ namespace StoneWalletService.Controllers
                 return Content(HttpStatusCode.BadRequest, "Couldn't find any wallet associated with this user account.");
             }
 
-            if (_WalletBusiness.ExecutePurchase(value, wallet))
+            if (_WalletBusiness.SetWalletUserDefinedLimit(wallet, value))
             {
                 return Ok(true);
             }
             else
             {
-                return Content(HttpStatusCode.BadRequest, "Error: Unable to pay credit.");
+                return Content(HttpStatusCode.BadRequest, "Error: Unable to set a credit limit");
+            }
+        }
+
+        [HttpPost]
+        public IHttpActionResult ExecutePurchase(decimal value)
+        {
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
+            if (cardholder == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
+            }
+
+            var wallet = _WalletBusiness.GetWallet(cardholder.CardholderId);
+            if (wallet == null)
+            {
+                return Content(HttpStatusCode.BadRequest, "Couldn't find any wallet associated with this user account.");
+            }
+
+            var result = _WalletBusiness.ExecutePurchase(value, wallet);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return Content(HttpStatusCode.BadRequest, "Error: Unable to execute purchase");
             }
         }
 
         [HttpPut]
         public IHttpActionResult AddCardToWallet(int cardId)
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
@@ -126,7 +164,7 @@ namespace StoneWalletService.Controllers
         [HttpPut]
         public IHttpActionResult RemoveCardFromWallet(int cardId)
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");
@@ -152,7 +190,7 @@ namespace StoneWalletService.Controllers
         [HttpDelete]
         public IHttpActionResult DeleteWallet()
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "There is no cardholder associated with the current user.");

@@ -44,17 +44,21 @@ namespace StoneWalletService.ViewModels
             return new StoneWalletLibrary.Models.Wallet(UserLimit, MaximumLimit, Credit, cards, Cardholder.ToModel());
         }
 
-        public static Wallet ToViewModel(StoneWalletLibrary.Models.Wallet wallet)
-        {
-            var cards = new List<Card>();
-            if (wallet.Cards != null)
-            {
-                foreach (var card in wallet.Cards)
-                {
-                    cards.Add(Card.ToViewModel(card));
-                }
-            }
-            return new Wallet(wallet.WalletId, wallet.UserLimit, wallet.MaximumLimit, wallet.Credit, cards, Cardholder.ToViewModel(wallet.Cardholder));
-        }
+        //public static Wallet ToViewModel(StoneWalletLibrary.Models.Wallet wallet)
+        //{
+        //    if (wallet == null)
+        //    {
+        //        return null;
+        //    }
+        //    var cards = new List<Card>();
+        //    if (wallet.Cards != null)
+        //    {
+        //        foreach (var card in wallet.Cards)
+        //        {
+        //            cards.Add(Card.ToViewModel(card));
+        //        }
+        //    }
+        //    return new Wallet(wallet.WalletId, wallet.UserLimit, wallet.MaximumLimit, wallet.Credit, cards, Cardholder.ToViewModel(wallet.Cardholder));
+        //}
     }
 }

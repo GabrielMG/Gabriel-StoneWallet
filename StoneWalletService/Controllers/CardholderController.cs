@@ -10,6 +10,7 @@ using StoneWalletLibrary.Data;
 using StoneWalletLibrary.BusinessLogic;
 using StoneWalletService.ViewModels;
 using System.Threading.Tasks;
+using StoneWalletLibrary.BusinessLogic.Interfaces;
 
 namespace StoneWalletService.Controllers
 {
@@ -22,10 +23,23 @@ namespace StoneWalletService.Controllers
 
         public CardholderController()
         {
-            var walletRepository = new WalletRepository(context);
-            var cardRepository = new CardRepository(context);
-            var cardholderRepository = new CardholderRepository(context);
-            _WalletBusiness = new WalletBusiness(walletRepository, cardRepository);
+            Configure(new WalletRepository(Context), new CardRepository(Context), new CardholderRepository(Context), new Clock());
+        }
+
+        public CardholderController(IStoneWalletContext context) : base(context)
+        {
+            Configure(new WalletRepository(Context), new CardRepository(Context), new CardholderRepository(Context), new Clock());
+        }
+
+        public CardholderController(bool testUserFlag, IWalletRepository walletRepository, ICardRepository cardRepository, ICardholderRepository cardholderRepository, IClock clock)
+        {
+            Configure(walletRepository, cardRepository, cardholderRepository, clock);
+            TestUserFlag = testUserFlag;
+        }
+
+        private void Configure(IWalletRepository walletRepository, ICardRepository cardRepository, ICardholderRepository cardholderRepository, IClock clock)
+        {
+            _WalletBusiness = new WalletBusiness(walletRepository, cardRepository, clock);
             _CardBusiness = new CardBusiness(cardRepository, _WalletBusiness);
             _CardholderBusiness = new CardholderBusiness(cardholderRepository, _CardBusiness, _WalletBusiness);
         }
@@ -34,12 +48,12 @@ namespace StoneWalletService.Controllers
         public IHttpActionResult GetCardholder()
         {
             StoneWalletLibrary.Models.Cardholder result = null;
-            result = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            result = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (result == null)
             {
                 return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
             }
-            return Ok(Cardholder.ToViewModel(result));
+            return Ok(result);
         }
 
         [HttpPost]
@@ -48,10 +62,10 @@ namespace StoneWalletService.Controllers
             StoneWalletLibrary.Models.Cardholder result = null;
             if (String.IsNullOrEmpty(cardholder.Email?.Trim()))
             {
-                cardholder.Email = RequestContext.Principal.Identity.Name;
+                cardholder.Email = GetCurrentUserEmail();
                 result = _CardholderBusiness.CreateCardholder(cardholder.ToModel());
             }
-            else if (cardholder.Email == RequestContext.Principal.Identity.Name)
+            else if (cardholder.Email == GetCurrentUserEmail())
             {
                 result = _CardholderBusiness.CreateCardholder(cardholder.ToModel());
             }
@@ -60,13 +74,13 @@ namespace StoneWalletService.Controllers
             {
                 return Content(HttpStatusCode.BadRequest, "Cardholder not created.");
             }
-            return Ok(Cardholder.ToViewModel(result));
+            return Ok(result);
         }
 
         [HttpPut]
         public IHttpActionResult EditCardholderName(string name)
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
@@ -77,13 +91,13 @@ namespace StoneWalletService.Controllers
             {
                 return Content(HttpStatusCode.BadRequest, "Error: Unable to edit cardholder.");
             }
-            return Ok(Cardholder.ToViewModel(result));
+            return Ok(result);
         }
 
         [HttpPut]
         public IHttpActionResult EditCardholderNationalIdNumber(string nationalIdNumber)
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
@@ -94,13 +108,13 @@ namespace StoneWalletService.Controllers
             {
                 return Content(HttpStatusCode.BadRequest, "Error: Unable to edit cardholder.");
             }
-            return Ok(Cardholder.ToViewModel(result));
+            return Ok(result);
         }
 
         [HttpDelete]
         public IHttpActionResult DeleteCardholder()
         {
-            var cardholder = _CardholderBusiness.GetCardholderByEmail(RequestContext.Principal.Identity.Name);
+            var cardholder = _CardholderBusiness.GetCardholderByEmail(GetCurrentUserEmail());
             if (cardholder == null)
             {
                 return Content(HttpStatusCode.BadRequest, "Cardholder not found.");
